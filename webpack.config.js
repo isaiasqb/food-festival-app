@@ -1,31 +1,70 @@
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
-const path = require("path");
-//bringing webpack's methods and properties into the config file. 
-const webpack  = require("webpack");
+const webpack = require('webpack');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin;
+// const SWPrecacheWebpackPlugin = require("sw-precache-webpack-plugin");
+// const WebpackPwaManifest = require("webpack-pwa-manifest");
+const path = require('path');
 
 
-//create the main configuration object within our file. Options within this object tell webpack what to do. 
-module.exports = {
-//For a basic configuration, we need to provide webpack with three properties: entry, output, and mode.
-
-  //The entry point is the root of the bundle and the beginning of the dependency graph
-  entry: './assets/js/script.js',
-
-  // entry code will be bundled and output to a folder that we specify.
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'main.bundle.js'
+const config = {
+  entry: {
+    app: './assets/js/script.js',
+    events: './assets/js/events.js',
+    schedule: './assets/js/schedule.js',
+    tickets: './assets/js/tickets.js'
   },
-
-  //if we want webpack to now use the jQuery package, we need to use a plugin to let webpack know
+  output: {
+    path: path.join(__dirname + "/dist"),
+    filename: "[name].bundle.js"
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              esModule: false,
+              name(file) {
+                return '[path][name].[ext]';
+              },
+              publicPath(url) {
+                return url.replace('../', '/assets/');
+              }
+            }
+          },
+          {
+            loader: 'image-webpack-loader'
+          }
+        ]
+      }
+    ]
+  },
   plugins: [
     new webpack.ProvidePlugin({
       $: 'jquery',
-      jquery: 'jquery'
+      jQuery: 'jquery'
     }),
     new BundleAnalyzerPlugin({
-      analyzerMode: "static", // the report outputs to an HTML file in the dist folder
+      analyzerMode: 'static'
     })
+    // new WebpackPwaManifest({
+    //   name: "Food Event",
+    //   short_name: "Foodies",
+    //   description: "An app that allows you to view upcoming food events.",
+    //   background_color: "#01579b",
+    //   theme_color: "#ffffff",
+    //   fingerprints: false,
+    //   inject: false,
+    //   icons: [{
+    //     src: path.resolve("assets/img/icons/icon-512x512.png"),
+    //     sizes: [96, 128, 192, 256, 384, 512],
+    //     destination: path.join("assets", "icons")
+    //   }]
+    // })
   ],
   mode: 'development'
-}
+};
+
+module.exports = config;
